@@ -1,4 +1,4 @@
-# coptic_pulse
+# Coptic Pulse Frontend
 
 A new Flutter project.
 
