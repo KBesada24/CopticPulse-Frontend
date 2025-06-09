@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import 'package:coptic_pulse/widgets/community_card.dart';
+import 'package:coptic_pulse/screens/announcement_detail_page.dart';
+import 'package:coptic_pulse/screens/event_detail_page.dart';
+import 'package:coptic_pulse/screens/prayer_request_detail_page.dart';
+// ignore: unused_import
+import 'package:coptic_pulse/widgets/community_widget.dart';
+import 'package:coptic_pulse/models/community_item.dart';
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  static const _communityItems = [
+    CommunityItem(
+      title: 'Events',
+      subtitle: 'Join us this Saturday for a community meetup!',
+      detailPage: EventDetailPage(),
+    ),
+    CommunityItem(
+      title: 'Announcements',
+      subtitle: 'New opening hours coming next week.',
+      detailPage: AnnouncementDetailPage(),
+    ),
+    CommunityItem(
+      title: 'Prayer Requests',
+      subtitle: 'Please pray for safe travels.',
+      detailPage: PrayerRequestDetailPage(),
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBar(),
+      body: Column(
+        children: [
+          ..._communityItems.map((item) => CommunityCard(item: item)),
+        ],
+      ),
+    );
+  }
+}
+
+AppBar appBar() {
+  return AppBar(
+    title: Text(
+      'Menu',
+      style: TextStyle(
+        fontSize: 26,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+    ),
+    backgroundColor: Color.fromRGBO(253, 250, 245, 1.0),
+    elevation: 0.0,
+  );
+}
