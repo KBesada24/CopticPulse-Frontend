@@ -8,9 +8,9 @@ class CommunityWidget extends StatelessWidget {
   final List<CommunityItem> items;
 
   const CommunityWidget({
-    Key? key,
+    super.key,
     required this.items,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
