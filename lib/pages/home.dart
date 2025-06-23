@@ -1,4 +1,5 @@
 import 'package:coptic_pulse/screens/liturgy_schedule.dart';
+import 'package:coptic_pulse/screens/new_post.dart';
 import 'package:flutter/material.dart';
 import 'package:coptic_pulse/widgets/community_card.dart';
 import 'package:coptic_pulse/screens/announcement_detail_page.dart';
@@ -26,10 +27,16 @@ class HomePage extends StatelessWidget {
       subtitle: 'Please pray for safe travels.',
       detailPage: PrayerRequestDetailPage(),
     ),
-    CommunityItem(title: 'Liturgy Schedule', 
-    subtitle: 'View our liturgy schedule.', 
-    detailPage: LiturgyScheduleDetailPage()
+    CommunityItem(
+      title: 'Liturgy Schedule', 
+      subtitle: 'View our liturgy schedule.', 
+      detailPage: LiturgyScheduleDetailPage()
     ),
+    CommunityItem(
+      title: 'New Post', 
+      subtitle: 'Create a new post.', 
+      detailPage: NewPostPage()
+      ),
   ];
 
   @override

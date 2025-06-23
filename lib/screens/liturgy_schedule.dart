@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart'; // Add this import
+import 'package:table_calendar/table_calendar.dart';
 
 class LiturgyScheduleDetailPage extends StatefulWidget {
   const LiturgyScheduleDetailPage({super.key});
