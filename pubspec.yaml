@@ -37,6 +37,18 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.1.0
   flutter_lints: 5.0.0
+  
+  # HTTP client for API communication
+  dio: ^5.4.0
+  
+  # State management
+  provider: ^6.1.1
+  
+  # Secure storage for tokens
+  flutter_secure_storage: ^9.0.0
+  
+  # Local database
+  sqflite: ^2.3.0
 
 dev_dependencies:
   flutter_test:

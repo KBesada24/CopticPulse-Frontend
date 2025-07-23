@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:coptic_pulse/pages/login.dart';
 import 'package:coptic_pulse/pages/home.dart';
+import 'package:coptic_pulse/utils/theme.dart';
+import 'package:coptic_pulse/utils/constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,10 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Coptic Pulse',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      title: AppConstants.appName,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.light,
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginPage(),
