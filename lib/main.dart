@@ -3,8 +3,12 @@ import 'package:coptic_pulse/pages/login.dart';
 import 'package:coptic_pulse/pages/home.dart';
 import 'package:coptic_pulse/utils/theme.dart';
 import 'package:coptic_pulse/utils/constants.dart';
+import 'package:coptic_pulse/services/api_service.dart';
 
 void main() {
+  // Initialize the API service
+  ApiService().initialize();
+  
   runApp(const MyApp());
 }
 
