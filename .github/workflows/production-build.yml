@@ -1,0 +1,59 @@
+name: Production Build Verification
+
+on:
+  push:
+    branches: [ main, release/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-production-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        
+    - name: Get dependencies
+      run: flutter pub get
+      working-directory: coptic_pulse
+      
+    - name: Run tests
+      run: flutter test
+      working-directory: coptic_pulse
+      
+    - name: Verify dev config is production-safe
+      run: |
+        # Check that DevConfig doesn't have hardcoded dev values
+        if grep -r "enableDevAuth.*=.*true" lib/utils/dev_config.dart; then
+          echo "❌ ERROR: enableDevAuth is hardcoded to true!"
+          exit 1
+        fi
+        
+        if grep -r "mockApiResponses.*=.*true" lib/utils/dev_config.dart; then
+          echo "❌ ERROR: mockApiResponses is hardcoded to true!"
+          exit 1
+        fi
+        
+        echo "✅ DevConfig is production-safe"
+      working-directory: coptic_pulse
+      
+    - name: Build production APK
+      run: |
+        flutter build apk --release \
+          --dart-define=ENABLE_DEV_AUTH=false \
+          --dart-define=SHOW_DEV_INFO=false \
+          --dart-define=MOCK_API=false \
+          --obfuscate \
+          --split-debug-info=build/debug-info
+      working-directory: coptic_pulse
+      
+    - name: Verify production build
+      run: |
+        echo "✅ Production build completed successfully"
+        echo "📦 APK size: $(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)"
+      working-directory: coptic_pulse

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/dev_auth_service.dart';
+import '../utils/dev_config.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,8 +33,8 @@ class _LoginPageState extends State<LoginPage> {
       final success = await authProvider.login(email, password);
 
       if (success && mounted) {
-        // Navigate to home after successful login
-        Navigator.pushReplacementNamed(context, '/home');
+        // Navigate to main navigation after successful login
+        Navigator.pushReplacementNamed(context, '/main');
       }
       // Error handling is done through the provider's error state
     }
@@ -50,6 +52,9 @@ class _LoginPageState extends State<LoginPage> {
               key: _formKey,
               child: Column(
                 children: [
+                  // Show dev credentials in development mode
+                  if (DevConfig.enableDevAuth && DevConfig.showDevInfo)
+                    _buildDevCredentialsCard(),
                   // Show error message if any
                   if (authProvider.errorMessage != null)
                     Container(
@@ -136,5 +141,72 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  /// Build development credentials card for easy testing
+  Widget _buildDevCredentialsCard() {
+    final credentials = DevAuthService.getTestCredentials();
+    
+    return Card(
+      color: Colors.blue.shade50,
+      margin: const EdgeInsets.only(bottom: 24),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.developer_mode, color: Colors.blue.shade700),
+                const SizedBox(width: 8),
+                Text(
+                  'Development Mode',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Test Credentials:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            ...credentials.entries.map((entry) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${entry.key}: ${entry.value}',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy, size: 16),
+                    onPressed: () => _fillCredentials(entry.value),
+                    tooltip: 'Fill credentials',
+                  ),
+                ],
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Fill login form with selected credentials
+  void _fillCredentials(String credentials) {
+    final parts = credentials.split(' / ');
+    if (parts.length == 2) {
+      _emailController.text = parts[0];
+      _passwordController.text = parts[1];
+    }
   }
 }

@@ -1,10 +1,18 @@
 import 'package:flutter/foundation.dart';
 import '../models/user.dart';
+import '../services/auth_interface.dart';
 import '../services/auth_service.dart';
+import '../services/dev_auth_service.dart';
+import '../utils/dev_config.dart';
 
 /// Provider for managing authentication state throughout the app
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  late final AuthInterface _authService;
+  
+  AuthProvider() {
+    // Use dev auth service in development mode, real auth service in production
+    _authService = DevConfig.enableDevAuth ? DevAuthService() : AuthService();
+  }
 
   User? _user;
   bool _isLoading = false;

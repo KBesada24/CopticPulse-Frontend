@@ -3,9 +3,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
 import 'api_service.dart';
+import 'auth_interface.dart';
 
 /// Service for handling authentication operations
-class AuthService {
+class AuthService implements AuthInterface {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
