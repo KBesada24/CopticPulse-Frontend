@@ -49,6 +49,12 @@ dependencies:
   
   # Local database
   sqflite: ^2.3.0
+  
+  # File picking and media handling
+  image_picker: ^1.0.4
+  file_picker: ^6.1.1
+  path: ^1.8.3
+  mime: ^1.0.4
 
 dev_dependencies:
   flutter_test:

@@ -17,20 +17,25 @@ class AuthService implements AuthInterface {
   User? _currentUser;
 
   /// Get the currently authenticated user
+  @override
   User? get currentUser => _currentUser;
 
   /// Check if user is authenticated
+  @override
   bool get isAuthenticated => _currentUser != null;
 
   /// Check if current user is an administrator
+  @override
   bool get isAdmin => _currentUser?.role == UserRole.administrator;
 
   /// Initialize the auth service and check for existing session
+  @override
   Future<void> initialize() async {
     await _loadUserFromStorage();
   }
 
   /// Login with email and password
+  @override
   Future<AuthResult> login(String email, String password) async {
     try {
       final response = await _apiService.post(
@@ -74,6 +79,7 @@ class AuthService implements AuthInterface {
   }
 
   /// Logout the current user
+  @override
   Future<void> logout() async {
     try {
       // Call logout endpoint if user is authenticated
@@ -89,6 +95,7 @@ class AuthService implements AuthInterface {
   }
 
   /// Refresh the authentication token
+  @override
   Future<bool> refreshToken() async {
     try {
       final refreshToken = await _secureStorage.read(key: AppConstants.refreshTokenKey);
@@ -132,11 +139,13 @@ class AuthService implements AuthInterface {
   }
 
   /// Get the current access token
+  @override
   Future<String?> getAccessToken() async {
     return await _secureStorage.read(key: AppConstants.accessTokenKey);
   }
 
   /// Check if the current session is valid
+  @override
   Future<bool> isSessionValid() async {
     final token = await getAccessToken();
     if (token == null) return false;

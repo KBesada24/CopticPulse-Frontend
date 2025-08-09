@@ -5,6 +5,7 @@ import '../providers/navigation_provider.dart';
 import '../widgets/custom_app_bar.dart';
 import '../screens/liturgy_schedule.dart';
 import '../screens/sermons_screen.dart';
+import '../screens/admin_dashboard_screen.dart';
 
 /// Main navigation page with bottom navigation bar and role-based views
 class MainNavigationPage extends StatefulWidget {
@@ -150,7 +151,7 @@ class AdminDashboardWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       appBar: CustomAppBar(title: 'Admin Dashboard'),
-      body: AdminDashboardPlaceholder(), // Will be replaced with actual AdminDashboardScreen
+      body: AdminDashboardScreen(),
     );
   }
 }

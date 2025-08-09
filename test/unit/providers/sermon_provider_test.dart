@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:coptic_pulse/providers/sermon_provider.dart';
 import 'package:coptic_pulse/services/sermon_service.dart';

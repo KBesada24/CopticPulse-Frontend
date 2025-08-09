@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:dio/dio.dart';
 import 'package:coptic_pulse/services/sermon_service.dart';
 import 'package:coptic_pulse/services/api_service.dart';
-import 'package:coptic_pulse/models/sermon.dart';
 import 'package:coptic_pulse/utils/constants.dart';
 
 import 'sermon_service_test.mocks.dart';

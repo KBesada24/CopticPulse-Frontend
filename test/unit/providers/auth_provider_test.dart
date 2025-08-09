@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:coptic_pulse/providers/auth_provider.dart';
-import 'package:coptic_pulse/models/user.dart';
 
 void main() {
   group('AuthProvider', () {

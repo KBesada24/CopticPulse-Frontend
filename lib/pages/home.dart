@@ -1,12 +1,10 @@
 import 'package:coptic_pulse/screens/liturgy_schedule.dart';
 import 'package:coptic_pulse/screens/new_post.dart';
 import 'package:flutter/material.dart';
-import 'package:coptic_pulse/widgets/community_card.dart';
+import 'package:coptic_pulse/widgets/menu_card.dart';
 import 'package:coptic_pulse/screens/announcement_detail_page.dart';
 import 'package:coptic_pulse/screens/event_detail_page.dart';
 import 'package:coptic_pulse/screens/prayer_request_detail_page.dart';
-// ignore: unused_import
-import 'package:coptic_pulse/widgets/community_widget.dart';
 import 'package:coptic_pulse/models/community_item.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -45,7 +43,7 @@ class HomePage extends StatelessWidget {
       appBar: appBar(),
       body: Column(
         children: [
-          ..._communityItems.map((item) => CommunityCard(item: item)),
+          ..._communityItems.map((item) => MenuCard(item: item)),
         ],
       ),
     );

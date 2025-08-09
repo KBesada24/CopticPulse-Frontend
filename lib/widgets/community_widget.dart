@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/community_item.dart';
-import 'community_card.dart';
+import 'menu_card.dart';
 
-/// A widget that displays a vertical list of community cards.
+/// A widget that displays a vertical list of menu cards.
 class CommunityWidget extends StatelessWidget {
   /// The items to show in the list.
   final List<CommunityItem> items;
@@ -19,7 +19,7 @@ class CommunityWidget extends StatelessWidget {
       itemCount: items.length,
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
-        return CommunityCard(item: items[index]);
+        return MenuCard(item: items[index]);
       },
     );
   }
