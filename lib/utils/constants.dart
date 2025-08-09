@@ -1,21 +1,21 @@
+import '../config/environment.dart';
+
 /// Application constants including API endpoints and configuration
 class AppConstants {
-  // API Configuration
-  static const String baseUrl = 'https://api.copticpulse.com'; // Replace with actual API URL
-  static const String apiVersion = 'v1';
-  static const String apiBaseUrl = '$baseUrl/api/$apiVersion';
+  // API Configuration - Uses environment-specific URLs
+  static String get apiBaseUrl => EnvironmentConfig.apiBaseUrl;
   
-  // API Endpoints
-  static const String loginEndpoint = '$apiBaseUrl/auth/login';
-  static const String refreshTokenEndpoint = '$apiBaseUrl/auth/refresh';
-  static const String logoutEndpoint = '$apiBaseUrl/auth/logout';
+  // API Endpoints - Dynamic based on environment
+  static String get loginEndpoint => '$apiBaseUrl/auth/login';
+  static String get refreshTokenEndpoint => '$apiBaseUrl/auth/refresh';
+  static String get logoutEndpoint => '$apiBaseUrl/auth/logout';
   
-  static const String postsEndpoint = '$apiBaseUrl/posts';
-  static const String approvalsEndpoint = '$apiBaseUrl/admin/approvals';
-  static const String liturgyEventsEndpoint = '$apiBaseUrl/liturgy-events';
-  static const String sermonsEndpoint = '$apiBaseUrl/sermons';
-  static const String usersEndpoint = '$apiBaseUrl/users';
-  static const String uploadEndpoint = '$apiBaseUrl/upload';
+  static String get postsEndpoint => '$apiBaseUrl/posts';
+  static String get approvalsEndpoint => '$apiBaseUrl/admin/approvals';
+  static String get liturgyEventsEndpoint => '$apiBaseUrl/liturgy-events';
+  static String get sermonsEndpoint => '$apiBaseUrl/sermons';
+  static String get usersEndpoint => '$apiBaseUrl/users';
+  static String get uploadEndpoint => '$apiBaseUrl/upload';
   
   // Storage Keys
   static const String accessTokenKey = 'access_token';
@@ -26,8 +26,8 @@ class AppConstants {
   // App Configuration
   static const String appName = 'Coptic Pulse';
   static const String appVersion = '1.0.0';
-  static const int requestTimeoutSeconds = 30;
-  static const int maxRetryAttempts = 3;
+  static int get requestTimeoutSeconds => EnvironmentConfig.requestTimeout.inSeconds;
+  static int get maxRetryAttempts => EnvironmentConfig.backendConfig.retryAttempts;
   
   // Pagination
   static const int defaultPageSize = 20;
@@ -39,11 +39,11 @@ class AppConstants {
   static const List<String> allowedVideoTypes = ['mp4', 'mov', 'avi'];
   
   // Cache Configuration
-  static const Duration cacheExpiration = Duration(hours: 1);
+  static Duration get cacheExpiration => EnvironmentConfig.cacheExpiration;
   static const String cacheVersion = '1.0';
   
   // Database Configuration
-  static const String databaseName = 'coptic_pulse.db';
+  static String get databaseName => EnvironmentConfig.databaseName;
   static const int databaseVersion = 1;
   
   // Post Types

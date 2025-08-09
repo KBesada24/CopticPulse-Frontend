@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../utils/constants.dart';
+import '../config/environment.dart';
 
 /// Base API service class that handles HTTP communication with the backend
 class ApiService {
@@ -14,11 +15,13 @@ class ApiService {
 
   /// Initialize the API service with Dio configuration
   void initialize() {
+    final config = EnvironmentConfig.backendConfig;
+    
     _dio = Dio(BaseOptions(
-      baseUrl: AppConstants.apiBaseUrl,
-      connectTimeout: Duration(seconds: AppConstants.requestTimeoutSeconds),
-      receiveTimeout: Duration(seconds: AppConstants.requestTimeoutSeconds),
-      sendTimeout: Duration(seconds: AppConstants.requestTimeoutSeconds),
+      baseUrl: config.baseUrl,
+      connectTimeout: config.timeout,
+      receiveTimeout: config.timeout,
+      sendTimeout: config.timeout,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -28,7 +31,11 @@ class ApiService {
     // Add interceptors
     _dio!.interceptors.add(_createAuthInterceptor());
     _dio!.interceptors.add(_createErrorInterceptor());
-    _dio!.interceptors.add(_createLoggingInterceptor());
+    
+    // Only add logging in development
+    if (config.enableLogging) {
+      _dio!.interceptors.add(_createLoggingInterceptor());
+    }
   }
 
   /// Get the configured Dio instance
