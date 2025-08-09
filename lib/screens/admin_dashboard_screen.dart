@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/approval_service.dart';
 import '../utils/theme.dart';
+import '../utils/route_guard.dart';
 import 'approvals_screen.dart';
 
 /// Admin dashboard screen for administrative functions
@@ -13,7 +14,7 @@ class AdminDashboardScreen extends StatefulWidget {
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> with AdminRequiredMixin {
   final ApprovalService _approvalService = ApprovalService();
   ApprovalStats? _stats;
   bool _isLoadingStats = false;
@@ -58,7 +59,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           const SizedBox(height: 24),
 
           // Stats cards
-          if (_stats != null) ...[
+          if (_isLoadingStats) ...[
+            _buildLoadingStatsSection(),
+            const SizedBox(height: 24),
+          ] else if (_stats != null) ...[
             _buildStatsSection(),
             const SizedBox(height: 24),
           ],
@@ -82,7 +86,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
               child: Icon(
                 Icons.admin_panel_settings,
                 size: 32,
@@ -109,6 +113,82 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingStatsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Overview',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildLoadingStatCard(),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildLoadingStatCard(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildLoadingStatCard(),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildLoadingStatCard(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingStatCard() {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                Spacer(),
+                SizedBox(
+                  width: 30,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            SizedBox(
+              width: 60,
+              height: 12,
+              child: LinearProgressIndicator(),
             ),
           ],
         ),
@@ -299,7 +379,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.1),
+          backgroundColor: color.withValues(alpha: 0.1),
           child: Icon(
             icon,
             color: color,

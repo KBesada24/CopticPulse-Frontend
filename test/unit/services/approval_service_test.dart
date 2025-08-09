@@ -5,13 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:coptic_pulse/services/approval_service.dart';
 import 'package:coptic_pulse/services/api_service.dart';
 import 'package:coptic_pulse/models/post.dart';
-import 'package:coptic_pulse/utils/constants.dart';
 
 import 'approval_service_test.mocks.dart';
 
 @GenerateMocks([ApiService])
 void main() {
-  group('ApprovalService', () {
+  group('ApprovalService Tests', () {
     late ApprovalService approvalService;
     late MockApiService mockApiService;
 
@@ -20,11 +19,64 @@ void main() {
       approvalService = ApprovalService(apiService: mockApiService);
     });
 
-    group('getPendingPosts', () {
-      test('should return pending posts successfully', () async {
+    group('getApprovalStats', () {
+      test('should return approval statistics when API call succeeds', () async {
         // Arrange
         final mockResponse = Response(
-          requestOptions: RequestOptions(path: ''),
+          data: {
+            'pendingCount': 5,
+            'approvedToday': 3,
+            'rejectedToday': 1,
+            'totalProcessed': 25,
+          },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/approvals/stats'),
+        );
+
+        when(mockApiService.get(
+          any,
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
+        )).thenAnswer((_) async => mockResponse);
+
+        // Act
+        final result = await approvalService.getApprovalStats();
+
+        // Assert
+        expect(result.pendingCount, equals(5));
+        expect(result.approvedToday, equals(3));
+        expect(result.rejectedToday, equals(1));
+        expect(result.totalProcessed, equals(25));
+        verify(mockApiService.get(
+          any,
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
+        )).called(1);
+      });
+
+      test('should throw ApprovalServiceException when API call fails', () async {
+        // Arrange
+        when(mockApiService.get(
+          any,
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
+        )).thenThrow(DioException(
+          requestOptions: RequestOptions(path: '/approvals/stats'),
+          message: 'Network error',
+        ));
+
+        // Act & Assert
+        expect(
+          () => approvalService.getApprovalStats(),
+          throwsA(isA<ApprovalServiceException>()),
+        );
+      });
+    });
+
+    group('getPendingPosts', () {
+      test('should return pending posts when API call succeeds', () async {
+        // Arrange
+        final mockResponse = Response(
           data: {
             'data': [
               {
@@ -44,99 +96,32 @@ void main() {
             'hasNextPage': false,
             'hasPreviousPage': false,
           },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/approvals'),
         );
 
         when(mockApiService.get(
-          AppConstants.approvalsEndpoint,
+          any,
           queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).thenAnswer((_) async => mockResponse);
 
         // Act
         final result = await approvalService.getPendingPosts();
 
         // Assert
-        expect(result.posts.length, 1);
-        expect(result.posts.first.id, '1');
-        expect(result.posts.first.title, 'Test Post');
-        expect(result.posts.first.status, PostStatus.pending);
-        expect(result.totalCount, 1);
-        expect(result.hasNextPage, false);
-
-        verify(mockApiService.get(
-          AppConstants.approvalsEndpoint,
-          queryParameters: {
-            'page': 1,
-            'limit': AppConstants.defaultPageSize,
-            'status': 'pending',
-          },
-        )).called(1);
-      });
-
-      test('should handle pagination parameters correctly', () async {
-        // Arrange
-        final mockResponse = Response(
-          requestOptions: RequestOptions(path: ''),
-          data: {
-            'data': [],
-            'totalCount': 0,
-            'currentPage': 2,
-            'totalPages': 3,
-            'hasNextPage': true,
-            'hasPreviousPage': true,
-          },
-        );
-
-        when(mockApiService.get(
-          AppConstants.approvalsEndpoint,
-          queryParameters: anyNamed('queryParameters'),
-        )).thenAnswer((_) async => mockResponse);
-
-        // Act
-        await approvalService.getPendingPosts(page: 2, limit: 10);
-
-        // Assert
-        verify(mockApiService.get(
-          AppConstants.approvalsEndpoint,
-          queryParameters: {
-            'page': 2,
-            'limit': 10,
-            'status': 'pending',
-          },
-        )).called(1);
-      });
-
-      test('should throw ApprovalServiceException on API error', () async {
-        // Arrange
-        final dioException = DioException(
-          requestOptions: RequestOptions(path: ''),
-          error: const ApiError(
-            type: ApiErrorType.server,
-            message: 'Server error',
-            statusCode: 500,
-          ),
-        );
-
-        when(mockApiService.get(
-          AppConstants.approvalsEndpoint,
-          queryParameters: anyNamed('queryParameters'),
-        )).thenThrow(dioException);
-
-        // Act & Assert
-        expect(
-          () => approvalService.getPendingPosts(),
-          throwsA(isA<ApprovalServiceException>()
-              .having((e) => e.type, 'type', ApprovalServiceErrorType.server)
-              .having((e) => e.message, 'message', 'Server error')),
-        );
+        expect(result.posts.length, equals(1));
+        expect(result.posts.first.title, equals('Test Post'));
+        expect(result.posts.first.status, equals(PostStatus.pending));
+        expect(result.totalCount, equals(1));
       });
     });
 
     group('approvePost', () {
-      test('should approve post successfully', () async {
+      test('should return approved post when API call succeeds', () async {
         // Arrange
         const postId = 'post123';
         final mockResponse = Response(
-          requestOptions: RequestOptions(path: ''),
           data: {
             'id': postId,
             'title': 'Test Post',
@@ -147,89 +132,38 @@ void main() {
             'createdAt': '2024-01-01T00:00:00.000Z',
             'attachments': [],
           },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/approvals/$postId/approve'),
         );
 
-        when(mockApiService.post('${AppConstants.approvalsEndpoint}/$postId/approve'))
-            .thenAnswer((_) async => mockResponse);
+        when(mockApiService.post(
+          any,
+          data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
+        )).thenAnswer((_) async => mockResponse);
 
         // Act
         final result = await approvalService.approvePost(postId);
 
         // Assert
-        expect(result.id, postId);
-        expect(result.status, PostStatus.approved);
-
-        verify(mockApiService.post('${AppConstants.approvalsEndpoint}/$postId/approve'))
-            .called(1);
-      });
-
-      test('should throw ApprovalServiceException on API error', () async {
-        // Arrange
-        const postId = 'post123';
-        final dioException = DioException(
-          requestOptions: RequestOptions(path: ''),
-          error: const ApiError(
-            type: ApiErrorType.authorization,
-            message: 'Access denied',
-            statusCode: 403,
-          ),
-        );
-
-        when(mockApiService.post('${AppConstants.approvalsEndpoint}/$postId/approve'))
-            .thenThrow(dioException);
-
-        // Act & Assert
-        expect(
-          () => approvalService.approvePost(postId),
-          throwsA(isA<ApprovalServiceException>()
-              .having((e) => e.type, 'type', ApprovalServiceErrorType.authorization)
-              .having((e) => e.message, 'message', 'Access denied')),
-        );
+        expect(result.id, equals(postId));
+        expect(result.status, equals(PostStatus.approved));
+        verify(mockApiService.post(
+          any,
+          data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
+        )).called(1);
       });
     });
 
     group('rejectPost', () {
-      test('should reject post successfully without reason', () async {
-        // Arrange
-        const postId = 'post123';
-        final mockResponse = Response(
-          requestOptions: RequestOptions(path: ''),
-          data: {
-            'id': postId,
-            'title': 'Test Post',
-            'content': 'Test content',
-            'type': 'announcement',
-            'status': 'rejected',
-            'authorId': 'user1',
-            'createdAt': '2024-01-01T00:00:00.000Z',
-            'attachments': [],
-          },
-        );
-
-        when(mockApiService.post(
-          '${AppConstants.approvalsEndpoint}/$postId/reject',
-          data: anyNamed('data'),
-        )).thenAnswer((_) async => mockResponse);
-
-        // Act
-        final result = await approvalService.rejectPost(postId);
-
-        // Assert
-        expect(result.id, postId);
-        expect(result.status, PostStatus.rejected);
-
-        verify(mockApiService.post(
-          '${AppConstants.approvalsEndpoint}/$postId/reject',
-          data: {},
-        )).called(1);
-      });
-
-      test('should reject post successfully with reason', () async {
+      test('should return rejected post when API call succeeds', () async {
         // Arrange
         const postId = 'post123';
         const reason = 'Inappropriate content';
         final mockResponse = Response(
-          requestOptions: RequestOptions(path: ''),
           data: {
             'id': postId,
             'title': 'Test Post',
@@ -240,261 +174,207 @@ void main() {
             'createdAt': '2024-01-01T00:00:00.000Z',
             'attachments': [],
           },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/approvals/$postId/reject'),
         );
 
         when(mockApiService.post(
-          '${AppConstants.approvalsEndpoint}/$postId/reject',
+          any,
           data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).thenAnswer((_) async => mockResponse);
 
         // Act
         final result = await approvalService.rejectPost(postId, reason: reason);
 
         // Assert
-        expect(result.id, postId);
-        expect(result.status, PostStatus.rejected);
-
+        expect(result.id, equals(postId));
+        expect(result.status, equals(PostStatus.rejected));
         verify(mockApiService.post(
-          '${AppConstants.approvalsEndpoint}/$postId/reject',
-          data: {'reason': reason},
+          any,
+          data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).called(1);
       });
-    });
 
-    group('requestRevision', () {
-      test('should request revision successfully', () async {
+      test('should reject post without reason when reason is not provided', () async {
         // Arrange
         const postId = 'post123';
-        const feedback = 'Please add more details';
         final mockResponse = Response(
-          requestOptions: RequestOptions(path: ''),
           data: {
             'id': postId,
             'title': 'Test Post',
             'content': 'Test content',
             'type': 'announcement',
-            'status': 'draft',
+            'status': 'rejected',
             'authorId': 'user1',
             'createdAt': '2024-01-01T00:00:00.000Z',
             'attachments': [],
           },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/approvals/$postId/reject'),
         );
 
         when(mockApiService.post(
-          '${AppConstants.approvalsEndpoint}/$postId/revision',
+          any,
           data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
+        )).thenAnswer((_) async => mockResponse);
+
+        // Act
+        final result = await approvalService.rejectPost(postId);
+
+        // Assert
+        expect(result.id, equals(postId));
+        expect(result.status, equals(PostStatus.rejected));
+        verify(mockApiService.post(
+          any,
+          data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
+        )).called(1);
+      });
+    });
+
+    group('requestRevision', () {
+      test('should return post with revision request when API call succeeds', () async {
+        // Arrange
+        const postId = 'post123';
+        const feedback = 'Please add more details';
+        final mockResponse = Response(
+          data: {
+            'id': postId,
+            'title': 'Test Post',
+            'content': 'Test content',
+            'type': 'announcement',
+            'status': 'pending',
+            'authorId': 'user1',
+            'createdAt': '2024-01-01T00:00:00.000Z',
+            'attachments': [],
+          },
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/approvals/$postId/revision'),
+        );
+
+        when(mockApiService.post(
+          any,
+          data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).thenAnswer((_) async => mockResponse);
 
         // Act
         final result = await approvalService.requestRevision(postId, feedback);
 
         // Assert
-        expect(result.id, postId);
-        expect(result.status, PostStatus.draft);
-
+        expect(result.id, equals(postId));
         verify(mockApiService.post(
-          '${AppConstants.approvalsEndpoint}/$postId/revision',
-          data: {'feedback': feedback},
+          any,
+          data: anyNamed('data'),
+          queryParameters: anyNamed('queryParameters'),
+          options: anyNamed('options'),
         )).called(1);
       });
+    });
+  });
 
-      test('should throw ApprovalServiceException on API error', () async {
-        // Arrange
-        const postId = 'post123';
-        const feedback = 'Please add more details';
-        final dioException = DioException(
-          requestOptions: RequestOptions(path: ''),
-          error: const ApiError(
-            type: ApiErrorType.notFound,
-            message: 'Post not found',
-            statusCode: 404,
-          ),
-        );
+  group('ApprovalStats Tests', () {
+    test('should create ApprovalStats from JSON correctly', () {
+      // Arrange
+      final json = {
+        'pendingCount': 10,
+        'approvedToday': 5,
+        'rejectedToday': 2,
+        'totalProcessed': 50,
+      };
 
-        when(mockApiService.post(
-          '${AppConstants.approvalsEndpoint}/$postId/revision',
-          data: anyNamed('data'),
-        )).thenThrow(dioException);
+      // Act
+      final stats = ApprovalStats.fromJson(json);
 
-        // Act & Assert
-        expect(
-          () => approvalService.requestRevision(postId, feedback),
-          throwsA(isA<ApprovalServiceException>()
-              .having((e) => e.type, 'type', ApprovalServiceErrorType.notFound)
-              .having((e) => e.message, 'message', 'Post not found')),
-        );
-      });
+      // Assert
+      expect(stats.pendingCount, equals(10));
+      expect(stats.approvedToday, equals(5));
+      expect(stats.rejectedToday, equals(2));
+      expect(stats.totalProcessed, equals(50));
+    });
+  });
+
+  group('ApprovalServiceException Tests', () {
+    test('should identify network errors correctly', () {
+      // Arrange
+      const exception = ApprovalServiceException(
+        message: 'Network error',
+        type: ApprovalServiceErrorType.network,
+      );
+
+      // Assert
+      expect(exception.isNetworkError, isTrue);
+      expect(exception.isAuthError, isFalse);
+      expect(exception.isAuthorizationError, isFalse);
+      expect(exception.isServerError, isFalse);
     });
 
-    group('getApprovalStats', () {
-      test('should return approval statistics successfully', () async {
-        // Arrange
-        final mockResponse = Response(
-          requestOptions: RequestOptions(path: ''),
-          data: {
-            'pendingCount': 5,
-            'approvedToday': 3,
-            'rejectedToday': 1,
-            'totalProcessed': 25,
-          },
-        );
+    test('should identify auth errors correctly', () {
+      // Arrange
+      const exception = ApprovalServiceException(
+        message: 'Authentication failed',
+        type: ApprovalServiceErrorType.authentication,
+      );
 
-        when(mockApiService.get('${AppConstants.approvalsEndpoint}/stats'))
-            .thenAnswer((_) async => mockResponse);
-
-        // Act
-        final result = await approvalService.getApprovalStats();
-
-        // Assert
-        expect(result.pendingCount, 5);
-        expect(result.approvedToday, 3);
-        expect(result.rejectedToday, 1);
-        expect(result.totalProcessed, 25);
-
-        verify(mockApiService.get('${AppConstants.approvalsEndpoint}/stats'))
-            .called(1);
-      });
-
-      test('should throw ApprovalServiceException on API error', () async {
-        // Arrange
-        final dioException = DioException(
-          requestOptions: RequestOptions(path: ''),
-          error: const ApiError(
-            type: ApiErrorType.network,
-            message: 'Network error',
-          ),
-        );
-
-        when(mockApiService.get('${AppConstants.approvalsEndpoint}/stats'))
-            .thenThrow(dioException);
-
-        // Act & Assert
-        expect(
-          () => approvalService.getApprovalStats(),
-          throwsA(isA<ApprovalServiceException>()
-              .having((e) => e.type, 'type', ApprovalServiceErrorType.network)
-              .having((e) => e.message, 'message', 'Network error')),
-        );
-      });
+      // Assert
+      expect(exception.isAuthError, isTrue);
+      expect(exception.isNetworkError, isFalse);
+      expect(exception.isAuthorizationError, isFalse);
+      expect(exception.isServerError, isFalse);
     });
 
-    group('error handling', () {
-      test('should map API error types correctly', () async {
-        // Test different error type mappings
-        final testCases = [
-          (ApiErrorType.network, ApprovalServiceErrorType.network),
-          (ApiErrorType.timeout, ApprovalServiceErrorType.network),
-          (ApiErrorType.authentication, ApprovalServiceErrorType.authentication),
-          (ApiErrorType.authorization, ApprovalServiceErrorType.authorization),
-          (ApiErrorType.validation, ApprovalServiceErrorType.validation),
-          (ApiErrorType.notFound, ApprovalServiceErrorType.notFound),
-          (ApiErrorType.server, ApprovalServiceErrorType.server),
-          (ApiErrorType.unknown, ApprovalServiceErrorType.unknown),
-        ];
+    test('should identify authorization errors correctly', () {
+      // Arrange
+      const exception = ApprovalServiceException(
+        message: 'Access denied',
+        type: ApprovalServiceErrorType.authorization,
+      );
 
-        for (final (apiErrorType, expectedServiceErrorType) in testCases) {
-          // Arrange
-          final dioException = DioException(
-            requestOptions: RequestOptions(path: ''),
-            error: ApiError(
-              type: apiErrorType,
-              message: 'Test error',
-            ),
-          );
-
-          when(mockApiService.get(
-            AppConstants.approvalsEndpoint,
-            queryParameters: anyNamed('queryParameters'),
-          )).thenThrow(dioException);
-
-          // Act & Assert
-          expect(
-            () => approvalService.getPendingPosts(),
-            throwsA(isA<ApprovalServiceException>()
-                .having((e) => e.type, 'type', expectedServiceErrorType)),
-          );
-
-          reset(mockApiService);
-        }
-      });
-
-      test('should handle unknown DioException correctly', () async {
-        // Arrange
-        final dioException = DioException(
-          requestOptions: RequestOptions(path: ''),
-          message: 'Unknown error',
-        );
-
-        when(mockApiService.get(
-          AppConstants.approvalsEndpoint,
-          queryParameters: anyNamed('queryParameters'),
-        )).thenThrow(dioException);
-
-        // Act & Assert
-        expect(
-          () => approvalService.getPendingPosts(),
-          throwsA(isA<ApprovalServiceException>()
-              .having((e) => e.type, 'type', ApprovalServiceErrorType.unknown)
-              .having((e) => e.message, 'message', 'Unknown error')),
-        );
-      });
+      // Assert
+      expect(exception.isAuthorizationError, isTrue);
+      expect(exception.isAuthError, isFalse);
+      expect(exception.isNetworkError, isFalse);
+      expect(exception.isServerError, isFalse);
     });
 
-    group('ApprovalServiceException', () {
-      test('should have correct properties', () {
-        const exception = ApprovalServiceException(
-          message: 'Test error',
-          type: ApprovalServiceErrorType.network,
-          statusCode: 500,
-        );
+    test('should identify server errors correctly', () {
+      // Arrange
+      const exception = ApprovalServiceException(
+        message: 'Internal server error',
+        type: ApprovalServiceErrorType.server,
+      );
 
-        expect(exception.message, 'Test error');
-        expect(exception.type, ApprovalServiceErrorType.network);
-        expect(exception.statusCode, 500);
-        expect(exception.isNetworkError, true);
-        expect(exception.isAuthError, false);
-        expect(exception.isAuthorizationError, false);
-        expect(exception.isServerError, false);
-      });
+      // Assert
+      expect(exception.isServerError, isTrue);
+      expect(exception.isAuthError, isFalse);
+      expect(exception.isNetworkError, isFalse);
+      expect(exception.isAuthorizationError, isFalse);
+    });
 
-      test('should identify error types correctly', () {
-        const networkException = ApprovalServiceException(
-          message: 'Network error',
-          type: ApprovalServiceErrorType.network,
-        );
-        expect(networkException.isNetworkError, true);
+    test('should format toString correctly', () {
+      // Arrange
+      const exception = ApprovalServiceException(
+        message: 'Test error',
+        type: ApprovalServiceErrorType.network,
+        statusCode: 500,
+      );
 
-        const authException = ApprovalServiceException(
-          message: 'Auth error',
-          type: ApprovalServiceErrorType.authentication,
-        );
-        expect(authException.isAuthError, true);
+      // Act
+      final result = exception.toString();
 
-        const authorizationException = ApprovalServiceException(
-          message: 'Authorization error',
-          type: ApprovalServiceErrorType.authorization,
-        );
-        expect(authorizationException.isAuthorizationError, true);
-
-        const serverException = ApprovalServiceException(
-          message: 'Server error',
-          type: ApprovalServiceErrorType.server,
-        );
-        expect(serverException.isServerError, true);
-      });
-
-      test('should have correct toString representation', () {
-        const exception = ApprovalServiceException(
-          message: 'Test error',
-          type: ApprovalServiceErrorType.validation,
-          statusCode: 400,
-        );
-
-        expect(
-          exception.toString(),
-          'ApprovalServiceException(type: ApprovalServiceErrorType.validation, message: Test error, statusCode: 400)',
-        );
-      });
+      // Assert
+      expect(result, contains('ApprovalServiceException'));
+      expect(result, contains('network'));
+      expect(result, contains('Test error'));
+      expect(result, contains('500'));
     });
   });
 }

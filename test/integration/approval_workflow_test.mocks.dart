@@ -3,13 +3,10 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
-import 'dart:ui' as _i7;
+import 'dart:async' as _i3;
+import 'dart:ui' as _i4;
 
-import 'package:coptic_pulse/models/post.dart' as _i3;
-import 'package:coptic_pulse/providers/auth_provider.dart' as _i6;
-import 'package:coptic_pulse/services/approval_service.dart' as _i4;
-import 'package:coptic_pulse/services/post_service.dart' as _i2;
+import 'package:coptic_pulse/providers/auth_provider.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -26,105 +23,10 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakePostResponse_0 extends _i1.SmartFake implements _i2.PostResponse {
-  _FakePostResponse_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakePost_1 extends _i1.SmartFake implements _i3.Post {
-  _FakePost_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeApprovalStats_2 extends _i1.SmartFake implements _i4.ApprovalStats {
-  _FakeApprovalStats_2(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-/// A class which mocks [ApprovalService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockApprovalService extends _i1.Mock implements _i4.ApprovalService {
-  MockApprovalService() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i5.Future<_i2.PostResponse> getPendingPosts({
-    int? page = 1,
-    int? limit = 20,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(#getPendingPosts, [], {
-              #page: page,
-              #limit: limit,
-            }),
-            returnValue: _i5.Future<_i2.PostResponse>.value(
-              _FakePostResponse_0(
-                this,
-                Invocation.method(#getPendingPosts, [], {
-                  #page: page,
-                  #limit: limit,
-                }),
-              ),
-            ),
-          )
-          as _i5.Future<_i2.PostResponse>);
-
-  @override
-  _i5.Future<_i3.Post> approvePost(String? postId) =>
-      (super.noSuchMethod(
-            Invocation.method(#approvePost, [postId]),
-            returnValue: _i5.Future<_i3.Post>.value(
-              _FakePost_1(this, Invocation.method(#approvePost, [postId])),
-            ),
-          )
-          as _i5.Future<_i3.Post>);
-
-  @override
-  _i5.Future<_i3.Post> rejectPost(String? postId, {String? reason}) =>
-      (super.noSuchMethod(
-            Invocation.method(#rejectPost, [postId], {#reason: reason}),
-            returnValue: _i5.Future<_i3.Post>.value(
-              _FakePost_1(
-                this,
-                Invocation.method(#rejectPost, [postId], {#reason: reason}),
-              ),
-            ),
-          )
-          as _i5.Future<_i3.Post>);
-
-  @override
-  _i5.Future<_i3.Post> requestRevision(String? postId, String? feedback) =>
-      (super.noSuchMethod(
-            Invocation.method(#requestRevision, [postId, feedback]),
-            returnValue: _i5.Future<_i3.Post>.value(
-              _FakePost_1(
-                this,
-                Invocation.method(#requestRevision, [postId, feedback]),
-              ),
-            ),
-          )
-          as _i5.Future<_i3.Post>);
-
-  @override
-  _i5.Future<_i4.ApprovalStats> getApprovalStats() =>
-      (super.noSuchMethod(
-            Invocation.method(#getApprovalStats, []),
-            returnValue: _i5.Future<_i4.ApprovalStats>.value(
-              _FakeApprovalStats_2(
-                this,
-                Invocation.method(#getApprovalStats, []),
-              ),
-            ),
-          )
-          as _i5.Future<_i4.ApprovalStats>);
-}
-
 /// A class which mocks [AuthProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthProvider extends _i1.Mock implements _i6.AuthProvider {
+class MockAuthProvider extends _i1.Mock implements _i2.AuthProvider {
   MockAuthProvider() {
     _i1.throwOnMissingStub(this);
   }
@@ -153,46 +55,46 @@ class MockAuthProvider extends _i1.Mock implements _i6.AuthProvider {
           as bool);
 
   @override
-  _i5.Future<void> initialize() =>
+  _i3.Future<void> initialize() =>
       (super.noSuchMethod(
             Invocation.method(#initialize, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i5.Future<bool> login(String? email, String? password) =>
+  _i3.Future<bool> login(String? email, String? password) =>
       (super.noSuchMethod(
             Invocation.method(#login, [email, password]),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i3.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i3.Future<bool>);
 
   @override
-  _i5.Future<void> logout() =>
+  _i3.Future<void> logout() =>
       (super.noSuchMethod(
             Invocation.method(#logout, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i3.Future<void>);
 
   @override
-  _i5.Future<bool> refreshToken() =>
+  _i3.Future<bool> refreshToken() =>
       (super.noSuchMethod(
             Invocation.method(#refreshToken, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i3.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i3.Future<bool>);
 
   @override
-  _i5.Future<bool> validateSession() =>
+  _i3.Future<bool> validateSession() =>
       (super.noSuchMethod(
             Invocation.method(#validateSession, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i3.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i3.Future<bool>);
 
   @override
   void clearError() => super.noSuchMethod(
@@ -201,13 +103,13 @@ class MockAuthProvider extends _i1.Mock implements _i6.AuthProvider {
   );
 
   @override
-  void addListener(_i7.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i7.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
